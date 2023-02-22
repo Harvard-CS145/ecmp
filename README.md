@@ -181,6 +181,12 @@ You are expected to submit the following documents:
 
 Please make sure all files are in the project3 folder of your master branch.
 
+You are expected to tag the version you would like us to grade on using following commands and push it to your own repo. You can learn from this [tutorial](https://git-scm.com/book/en/v2/Git-Basics-Tagging) on how to use `git tag` command. This command will record the time of your submission for our grading purpose.
+```
+git tag -a submission -m "Final Submission"
+git push --tags
+```
+
 ### Grading 
 
 The total grades is 100:
