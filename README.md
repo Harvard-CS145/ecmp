@@ -213,8 +213,6 @@ The total grades is 100:
 - Extra credits as described above 
 - Deductions based on late policies
 
-### Survey
+## Survey
 
-Please fill up the survey when you finish your project.
-
-[Survey link](https://docs.google.com/forms/d/e/1FAIpQLScT0xb8mJjfqVR15OZFBtWLXKxuXIyujQO6ViFJUGB5uoDqeg/viewform?usp=sf_link)
+Please fill out the Canvas survey after completing this project.
