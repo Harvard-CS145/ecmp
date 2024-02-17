@@ -4,12 +4,27 @@ import os
 import sys
 import time
 import math
+import json
 
 print("Test ECMP")
 print("Running iperf")
 
+# parse topology
+f = open("topology.json")
+topo_json = json.load(f)
+f.close()
+topo = 0
+links = topo_json['links']
+for l in links:
+    if (l['node1'] == 'a1' and l['node2'] == 'c1'):
+        if l['port1'] == 1 or l['port1'] == 2:
+            topo = 1
+    if (l['node1'] == 'c1' and l['node2'] == 'a1'):
+        if l['port2'] == 1 or l['port2'] == 2:
+            topo = 1
+
 # running a scripts to send iperf traffic for each host pair (hx->hy for any x and y from 1 to 16)
-os.system("sudo bash tests/iperf_send.sh")
+os.system("sudo bash tests/iperf_send.sh {}".format(topo))
 
 fail = False
 # check each pod in the fattree
@@ -48,6 +63,6 @@ for pod in range(1, 5):
         fail = True
 
 if not fail:
-    print("Test passes")
+    print("Test passes. Your traffic is evenly distributed on the paths.")
 else:
-    print("Test fails")
+    print("Test fails. Your traffic is not evenly distributed.")

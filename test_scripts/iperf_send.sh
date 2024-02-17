@@ -3,9 +3,15 @@
 rm -rf tcpdump_logs
 mkdir tcpdump_logs
 for i in {1..8}
-do 
+do
+if [ "$1" -eq 1 ];
+then
+    tcpdump -enn -i a$i-eth1 > tcpdump_logs/log${i}_1.output 2> /dev/null &
+    tcpdump -enn -i a$i-eth2 > tcpdump_logs/log${i}_2.output 2> /dev/null &
+else    
     tcpdump -enn -i a$i-eth3 > tcpdump_logs/log${i}_1.output 2> /dev/null &
     tcpdump -enn -i a$i-eth4 > tcpdump_logs/log${i}_2.output 2> /dev/null &
+fi
 done
 
 count=0
