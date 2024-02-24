@@ -9,4 +9,4 @@ then
     # git remote add upstream "git@github.com:Harvard-CS145/ecmp.git"
 fi
 
-git pull upstream main --allow-unrelated-histories
+git pull upstream master --allow-unrelated-histories
