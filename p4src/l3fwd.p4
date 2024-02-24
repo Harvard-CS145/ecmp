@@ -128,11 +128,6 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
 
-    // This table maps dstAddr to ecmp_group_id and num_nhops (the number of total output ports). The action ecmp_group is actually calculating the hash value.
-    table ipv4_lpm {
-        //TODO: define the ip forwarding table
-    }
-
     // ECMP Only
     // ecmp_group_id: ecmp group ID for this switch, specified by constroller
     // num_nhops: the number of total output ports, specified by controller
@@ -145,17 +140,22 @@ control MyIngress(inout headers hdr,
     action drop() {
         mark_to_drop(standard_metadata);
     }
-    
-    // The second table maps the hash value you get (you probably need to think of how to store the hash value calculated in the ecmp_group) and the ecmp_group_id to the egress port. The action set_nhop sets the egress port. 
-    table ecmp_group_to_nhop {
-        //TODO: define the ecmp table, this table is only called when multiple egress ports are available 
-    }
 
     // set next hop
     // port: the egress port for this packet
     action set_nhop(egressSpec_t port) {
         //TODO: Define the set_nhop action. You can copy it from the previous exercise, they are the same.
         
+    }
+
+    // This table maps dstAddr to ecmp_group_id and num_nhops (the number of total output ports). The action ecmp_group is actually calculating the hash value.
+    table ipv4_lpm {
+        //TODO: define the ip forwarding table
+    }
+
+    // The second table maps the hash value you get (you probably need to think of how to store the hash value calculated in the ecmp_group) and the ecmp_group_id to the egress port. The action set_nhop sets the egress port. 
+    table ecmp_group_to_nhop {
+        //TODO: define the ecmp table, this table is only called when multiple egress ports are available 
     }
 
     apply {
