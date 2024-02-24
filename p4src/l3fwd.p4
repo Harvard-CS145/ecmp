@@ -148,7 +148,8 @@ control MyIngress(inout headers hdr,
         
     }
 
-    // This table maps dstAddr to ecmp_group_id and num_nhops (the number of total output ports). The action ecmp_group is actually calculating the hash value.
+    // For Task 1, this table maps dstAddr to the set_nhop action (essentially just mapping dstAddr to an output port)
+    // For ECMP, this table maps dstAddr to either the set_nhop action or the ecmp_group action. The action ecmp_group is actually calculating the hash value and kicking off ecmp logic
     table ipv4_lpm {
         //TODO: define the ip forwarding table
     }
