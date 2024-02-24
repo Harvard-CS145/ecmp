@@ -24,7 +24,7 @@ for l in links:
             topo = 1
 
 # running a scripts to send iperf traffic for each host pair (hx->hy for any x and y from 1 to 16)
-os.system("sudo bash tests/iperf_send.sh {}".format(topo))
+os.system("sudo bash test_scripts/iperf_send.sh {}".format(topo))
 
 fail = False
 # check each pod in the fattree
