@@ -93,10 +93,10 @@ The rules for each type of switches should be independent, but the rules togethe
 
 ### Test your code
 
-We have a testing script `tests/validate_ecmp.py`, which monitors the traffic in your network, to validate whether ECMP works. It generates iperf traffic randomly, and tests whether the load is balanced across different hops.
+We have a testing script `test_scripts/validate_ecmp.py`, which monitors the traffic in your network, to validate whether ECMP works. It generates iperf traffic randomly, and tests whether the load is balanced across different hops.
 To test your network, run
 ```
-sudo python3 tests/validate_ecmp.py
+sudo python3 test_scripts/validate_ecmp.py
 ```
 
 ## Performance comparison for ECMP (for k=4 FatTree) 
