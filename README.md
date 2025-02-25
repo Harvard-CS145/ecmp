@@ -13,7 +13,7 @@ To start this project, you will first need to get the [infrastructure setup](htt
 git clone --recurse-submodules <your repository>
 ```
 
-Run `./pull_update.sh` to pull project updates (if any). You might need to merge conflicts manually: most of the time, you just need to accept incoming changes; reach to TF if it is hard to merge. This step also applies to all subsequent projects. 
+When there are updates to the starter code, TFs will open pull requests in your repository. You should merge the pull request and pull the changes back to local. You might need to resolve conflicts manually (either when merging PR in remote or pulling back to local). However, most of the times there shouldn't be too much conflict as long as you do not make changes to test scripts, infrastructures, etc. Reach out to TF if it is hard to merge.
 
 In project 1, we distributed traffic across two separated core switches for different application (`controller_fattree_twocore.py`). But this is not efficient enough. For instance, if one application stops working, then its corresponding core switch is wasted. Or if we have many applications, we may not afford to have one core per application.
 Thus, we need a more advanced routing strategy -- ECMP. At the end of ECMP experiment, you are expected to see even higher throughput of iperf and lower latency of Memcached, compared with `controller_fattree_twocore.py`. 
