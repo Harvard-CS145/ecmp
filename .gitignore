@@ -1,20 +1,23 @@
-**/pcap/
-**/log/
-**/*.p4i
-**/*.db
-**/*.pyc
-**/*.log
-**/*.pcap
-**/*.trace
-**/*.swp
-**/*.swm
-**/*.swn
-**/*.swo
+pcap/
+log/
+*.p4i
+*.db
+*.pyc
+*.log
+*.pcap
+*.trace
+*.swp
+*.swm
+*.swn
+*.swo
 
-**/p4src/*.json
-**/*_topo.json
+p4src/*.json
+*_topo.json
+topology.json
+topology/p4app_*.json
 
 .idea
 .DS_Store
 iperf_logs/
 tcpdump_logs/
+.vscode

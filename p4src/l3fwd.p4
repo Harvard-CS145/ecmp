@@ -1,30 +1,30 @@
 /*
-
-Summary: this module does L3 forwarding. For more info on this module, read the project README.
-
-*/
+ * Summary: this module does L3 forwarding.
+ * For more info on this module, read the project README.
+ */
 
 /* -*- P4_16 -*- */
 #include <core.p4>
 #include <v1model.p4>
 
 /*
-
-Summary: The following section defines the protocol headers used by packets. These include the IPv4, TCP, and Ethernet headers. A header declaration in P4 includes all the field names (in order) together with the size (in bits) of each field. Metadata is similar to a header but only holds meaning during switch processing. It is only part of the packet while the packet is in the switch pipeline and is removed when the packet exits the switch.
-
-*/
-
+ * Summary: The following section defines the protocol headers used by packets.
+ * These include the IPv4, TCP, and Ethernet headers. A header declaration in
+ * P4 includes all the field names (in order) together with the size (in bits)
+ * of each field. Metadata is similar to a header but only holds meaning during
+ * switch processing. It is only part of the packet while the packet is in the
+ * switch pipeline and is removed when the packet exits the switch.
+ */
 
 /*************************************************************************
-*********************** H E A D E R S  ***********************************
-*************************************************************************/
+ *                              HEADERS                                  *
+ *************************************************************************/
 
 const bit<16> TYPE_IPV4 = 0x800;
 
 typedef bit<9>  egressSpec_t;
 typedef bit<48> macAddr_t;
 typedef bit<32> ip4Addr_t;
-
 
 header ethernet_t {
     macAddr_t dstAddr;
@@ -48,7 +48,7 @@ header ipv4_t {
     ip4Addr_t dstAddr;
 }
 
-header tcp_t{
+header tcp_t {
     bit<16> srcPort;
     bit<16> dstPort;
     bit<32> seqNo;
@@ -69,123 +69,120 @@ header tcp_t{
 }
 
 struct headers {
-    ethernet_t   ethernet;
-    ipv4_t       ipv4;
-    tcp_t        tcp;
+    ethernet_t ethernet;
+    ipv4_t     ipv4;
+    tcp_t      tcp;
 }
 
-struct metadata {}
+struct metadata { }
 
 /*
-
-Summary: the following section defines logic required to parse a packet's headers. Packets need to be parsed in the same order they are added to a packet. See headers.p4 to see header declarations. Deparsing can be thought of as stitching the headers back into the packet before it leaves the switch. Headers need to be deparsed in the same order they were parsed.
-
-*/
+ * Summary: the following section defines logic required to parse a packet's
+ * headers. Packets need to be parsed in the same order they are added to a
+ * packet. See headers.p4 to see header declarations. Deparsing can be
+ * thought of as stitching the headers back into the packet before it leaves
+ * the switch. Headers need to be deparsed in the same order they were parsed.
+ */
 
 /*************************************************************************
-*********************** P A R S E R  *******************************
-*************************************************************************/
-
+ *                              PARSER                                   *
+ *************************************************************************/
 parser MyParser(packet_in packet,
                 out headers hdr,
                 inout metadata meta,
                 inout standard_metadata_t standard_metadata) {
-
     // TODO: Define a parser for ethernet, ipv4 and tcp
     state start {
-
+        // Parsing logic goes here
     }
-
-    
 }
 
 /*************************************************************************
-***********************  D E P A R S E R  *******************************
-*************************************************************************/
-
+ *                             DE-PARSER                                 *
+ *************************************************************************/
 control MyDeparser(packet_out packet, in headers hdr) {
     apply {
         // TODO: Deparse the ethernet, ipv4 and tcp headers
-        
     }
 }
 
-
 /*************************************************************************
-************   C H E C K S U M    V E R I F I C A T I O N   *************
-*************************************************************************/
-
+ *                     CHECKSUM VERIFICATION                             *
+ *************************************************************************/
 control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
-    apply {  }
+    apply { }
 }
 
-
 /*************************************************************************
-**************  I N G R E S S   P R O C E S S I N G   *******************
-*************************************************************************/
-
+ *                     INGRESS PROCESSING                                *
+ *************************************************************************/
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
-
     // ECMP Only
-    // ecmp_group_id: ecmp group ID for this switch, specified by constroller
+    // ecmp_group_id: ecmp group ID for this switch, specified by controller
     // num_nhops: the number of total output ports, specified by controller
-    action ecmp_group(bit<14> ecmp_group_id, bit<16> num_nhops){
-        //TODO: define the ecmp_group action, where you need to hash the 5-tuple mod num_ports and save it in metadata
-        
+    action ecmp_group(bit<14> ecmp_group_id, bit<16> num_nhops) {
+        // TODO: define the ecmp_group action, where you need to hash the
+        // 5-tuple mod num_ports and save it in metadata
     }
 
-    // dropped packets will not get forwarded
+    // Dropped packets will not get forwarded
     action drop() {
         mark_to_drop(standard_metadata);
     }
 
-    // set next hop
+    // Set next hop
     // port: the egress port for this packet
     action set_nhop(egressSpec_t port) {
-        //TODO: Define the set_nhop action. You can copy it from the previous exercise, they are the same.
-        
+        // TODO: Define the set_nhop action. You can copy it from the previous
+        // exercise, they are the same.
     }
 
-    // For Task 1, this table maps dstAddr to the set_nhop action (essentially just mapping dstAddr to an output port)
-    // For ECMP, this table maps dstAddr to either the set_nhop action or the ecmp_group action. The action ecmp_group is actually calculating the hash value and kicking off ecmp logic
+    // For Task 1, this table maps dstAddr to the set_nhop action (essentially
+    // just mapping dstAddr to an output port). For ECMP, this table maps
+    // dstAddr to either the set_nhop action or the ecmp_group action. The
+    // action ecmp_group is actually calculating the hash value and kicking
+    // off ecmp logic.
     table ipv4_lpm {
-        //TODO: define the ip forwarding table
+        // TODO: define the ip forwarding table
     }
 
-    // The second table maps the hash value you get (you probably need to think of how to store the hash value calculated in the ecmp_group) and the ecmp_group_id to the egress port. The action set_nhop sets the egress port. 
+    // The second table maps the hash value you get (you probably need to think
+    // of how to store the hash value calculated in the ecmp_group) and the
+    // ecmp_group_id to the egress port. The action set_nhop sets the egress
+    // port.
     table ecmp_group_to_nhop {
-        //TODO: define the ecmp table, this table is only called when multiple egress ports are available 
+        // TODO: define the ecmp table, this table is only called when multiple
+        // egress ports are available
     }
 
     apply {
-        //TODO: implement the ingress logic.
-        //ECMP Only Hint: check validities, apply first table (ie, ipv4_lpm), and if multiple possible egress ports exist (ie, ecmp_group action triggered), then apply the second table (ie, ecmp_group_to_nhop).
-        
+        // TODO: implement the ingress logic.
+        // ECMP Only Hint: check validities, apply first table (i.e., ipv4_lpm),
+        // and if multiple possible egress ports exist (i.e., ecmp_group action
+        // triggered), then apply the second table (i.e., ecmp_group_to_nhop).
     }
 }
 
 /*************************************************************************
-****************  E G R E S S   P R O C E S S I N G   *******************
-*************************************************************************/
-
+ *                     EGRESS PROCESSING                                 *
+ *************************************************************************/
 control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
-    apply {  }
+    apply { }
 }
 
 /*************************************************************************
-*************   C H E C K S U M    C O M P U T A T I O N   **************
-*************************************************************************/
-
+ *                    CHECKSUM COMPUTATION                               *
+ *************************************************************************/
 control MyComputeChecksum(inout headers hdr, inout metadata meta) {
     apply {
-    update_checksum(
-	    hdr.ipv4.isValid(),
+        update_checksum(
+            hdr.ipv4.isValid(),
             { hdr.ipv4.version,
-	          hdr.ipv4.ihl,
+              hdr.ipv4.ihl,
               hdr.ipv4.dscp,
               hdr.ipv4.ecn,
               hdr.ipv4.totalLen,
@@ -196,21 +193,20 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
               hdr.ipv4.protocol,
               hdr.ipv4.srcAddr,
               hdr.ipv4.dstAddr },
-              hdr.ipv4.hdrChecksum,
-              HashAlgorithm.csum16);    
+            hdr.ipv4.hdrChecksum,
+            HashAlgorithm.csum16);
     }
 }
 
 /*************************************************************************
-***********************  S W I T C H  *******************************
-*************************************************************************/
-
-//switch architecture
+ *                              SWITCH                                   *
+ *************************************************************************/
+// Switch architecture
 V1Switch(
-MyParser(),
-MyVerifyChecksum(),
-MyIngress(),
-MyEgress(),
-MyComputeChecksum(),
-MyDeparser()
+    MyParser(),
+    MyVerifyChecksum(),
+    MyIngress(),
+    MyEgress(),
+    MyComputeChecksum(),
+    MyDeparser()
 ) main;

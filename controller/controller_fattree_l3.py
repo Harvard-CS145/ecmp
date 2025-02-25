@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#!/usr/bin/python3
 
 # ./controller/controller_fattree_l3.py
 #   Insert P4 table entries to route traffic among hosts for FatTree topology
@@ -6,9 +6,9 @@
 
 from p4utils.utils.helper import load_topo
 from p4utils.utils.sswitch_thrift_API import SimpleSwitchThriftAPI
-import sys
 
-class RoutingController(object):
+
+class RoutingController:
 
     def __init__(self):
         self.topo = load_topo("topology.json")
@@ -30,13 +30,15 @@ class RoutingController(object):
 
     def set_table_defaults(self):
         # TODO: define table default actions
+        pass
 
     def route(self):
         # TODO: define routing algorithm
+        pass
 
     def main(self):
         self.route()
 
 
 if __name__ == "__main__":
-    controller = RoutingController().main()
+    RoutingController().main()

@@ -1,14 +1,15 @@
-#! /bin/bash
+#!/bin/bash
 
 rm -rf tcpdump_logs
 mkdir tcpdump_logs
+
 for i in {1..8}
 do
 if [ "$1" -eq 1 ];
 then
     tcpdump -enn -i a$i-eth1 > tcpdump_logs/log${i}_1.output 2> /dev/null &
     tcpdump -enn -i a$i-eth2 > tcpdump_logs/log${i}_2.output 2> /dev/null &
-else    
+else
     tcpdump -enn -i a$i-eth3 > tcpdump_logs/log${i}_1.output 2> /dev/null &
     tcpdump -enn -i a$i-eth4 > tcpdump_logs/log${i}_2.output 2> /dev/null &
 fi
@@ -20,7 +21,7 @@ do
     port=5000
     for client in {1..16}
     do
-        if [ "$server" -ne "$client" ] 
+        if [ "$server" -ne "$client" ]
         then
             count=$(($count+1))
             printf "\r%.3f%%" "$(bc -l <<< "(($count*100/240))")"

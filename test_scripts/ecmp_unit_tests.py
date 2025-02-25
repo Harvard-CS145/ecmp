@@ -13,9 +13,9 @@ os.system("sudo killall tcpdump")
 time.sleep(1)
 
 with open("tcpdump_log.output", "r") as f:
-  contents = f.read()
-  assert("ICMP echo reply" in contents)
-  assert("ICMP echo request" not in contents)
+    contents = f.read()
+    assert "ICMP echo reply" in contents
+    assert "ICMP echo request" not in contents
 
 print("Passed")
 
@@ -27,8 +27,8 @@ os.system("sudo killall tcpdump")
 time.sleep(1)
 
 with open("tcpdump_log.output", "r") as f:
-  contents = f.read()
-  assert(len(contents) == 1)
+    contents = f.read()
+    assert len(contents) == 1
 
 print("Passed")
 
@@ -40,10 +40,9 @@ os.system("sudo killall tcpdump")
 time.sleep(1)
 
 with open("tcpdump_log.output", "r") as f:
-  contents = f.read()
-  assert("ICMP echo reply" not in contents)
-  assert("ICMP echo request" in contents)
+    contents = f.read()
+    assert "ICMP echo reply" not in contents
+    assert "ICMP echo request" in contents
 
 print("Passed")
-
 os.system("sudo rm -rf tcpdump_log.output")

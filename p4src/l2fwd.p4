@@ -1,19 +1,17 @@
 /*
-
-Summary: this module does layer 2 forwarding on packets. Layer 2 forwarding uses the packet's MAC address to forward it to an egress port.
-
-*/
+ * Summary: This module does layer 2 forwarding on packets.
+ * Layer 2 forwarding uses the packet's MAC address to forward it to an egress port.
+ */
 
 /* -*- P4_16 -*- */
 #include <core.p4>
 #include <v1model.p4>
 
 /*************************************************************************
-*********************** H E A D E R S  ***********************************
-*************************************************************************/
+ *                              HEADERS                                  *
+ *************************************************************************/
 
-// Define ethernet header, metadata and headers struct
-
+// Define ethernet header, metadata, and headers struct
 typedef bit<9>  egressSpec_t;
 typedef bit<48> macAddr_t;
 typedef bit<32> ip4Addr_t;
@@ -29,57 +27,46 @@ struct metadata {
 }
 
 struct headers {
-    ethernet_t   ethernet;
+    ethernet_t ethernet;
 }
 
-
 /*************************************************************************
-*********************** P A R S E R  ***********************************
-*************************************************************************/
-
+ *                              PARSER                                   *
+ *************************************************************************/
 parser MyParser(packet_in packet,
                 out headers hdr,
                 inout metadata meta,
                 inout standard_metadata_t standard_metadata) {
-
     state start {
-        // parse ethernet header
+        // Parse ethernet header
         packet.extract(hdr.ethernet);
         transition accept;
     }
 }
 
-
 /*************************************************************************
-************   C H E C K S U M    V E R I F I C A T I O N   *************
-*************************************************************************/
-
+ *                     CHECKSUM VERIFICATION                             *
+ *************************************************************************/
 control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
-    apply {  }
+    apply { }
 }
 
-
 /*************************************************************************
-**************  I N G R E S S   P R O C E S S I N G   *******************
-*************************************************************************/
-
+ *                     INGRESS PROCESSING                                *
+ *************************************************************************/
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
-
     action drop() {
-
         mark_to_drop(standard_metadata);
     }
 
-    // define an action to forward packets
-
+    // Action to forward packets
     action forward(bit<9> egress_port) {
         standard_metadata.egress_spec = egress_port;
     }
 
-    // define a table 
-
+    // Define a table for DMAC lookup
     table dmac {
         key = {
             hdr.ethernet.dstAddr: exact;
@@ -93,59 +80,48 @@ control MyIngress(inout headers hdr,
         size = 256;
         default_action = NoAction;
     }
-   
+
     apply {
-
-        // call the table
+        // Call the table
         dmac.apply();
-
     }
 }
 
 /*************************************************************************
-****************  E G R E S S   P R O C E S S I N G   *******************
-*************************************************************************/
-
+ *                     EGRESS PROCESSING                                 *
+ *************************************************************************/
 control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
-
-
-    apply {  }
+    apply { }
 }
 
 /*************************************************************************
-*************   C H E C K S U M    C O M P U T A T I O N   **************
-*************************************************************************/
-
+ *                     CHECKSUM COMPUTATION                              *
+ *************************************************************************/
 control MyComputeChecksum(inout headers hdr, inout metadata meta) {
-     apply {
-
-    }
+    apply { }
 }
 
-
 /*************************************************************************
-***********************  D E P A R S E R  *******************************
-*************************************************************************/
-
+ *                              DE-PARSER                                *
+ *************************************************************************/
 control MyDeparser(packet_out packet, in headers hdr) {
     apply {
-        // deparse the ethernet header
+        // Deparse the ethernet header
         packet.emit(hdr.ethernet);
     }
 }
 
 /*************************************************************************
-***********************  S W I T C H  *******************************
-*************************************************************************/
-
-//switch architecture
+ *                              SWITCH                                   *
+ *************************************************************************/
+// Switch architecture
 V1Switch(
-MyParser(),
-MyVerifyChecksum(),
-MyIngress(),
-MyEgress(),
-MyComputeChecksum(),
-MyDeparser()
+    MyParser(),
+    MyVerifyChecksum(),
+    MyIngress(),
+    MyEgress(),
+    MyComputeChecksum(),
+    MyDeparser()
 ) main;
