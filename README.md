@@ -241,7 +241,7 @@ git push --tags
 
 You are expected to submit the following documents:
 
-1. Code: The P4 programs that you write to implement L3 routing and ECMP in the dataplane (`p4src/l3fwd.p4`). The controller programs that fill in the forwarding rules for Fattree topologies with L3 routing and ECMP (`controller/controller_fattree_l3.py`). Please also add brief comments that help us understand your code.
+1. Code: The P4 programs that you write to implement L3 routing and ECMP in the dataplane (`p4src/l3fwd.p4`, `p4src/include/parsers.p4` and `p4src/include/headers.p4`). The controller programs that fill in the forwarding rules for Fattree topologies with L3 routing and ECMP (`controller/controller_fattree_l3.py`). Please also add brief comments that help us understand your code.
 2. `report/report.md`: In this report, you should describe how you implement L3 routing, ECMP, and fill in rules with the controller. You also need to answer the questions above. You might put some figures in the `report/` folder, and embed them in your `report/report.md`.
 
 ### Grading
