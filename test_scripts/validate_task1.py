@@ -27,7 +27,7 @@ def test_fat_tree():
             c += 1
             print(int(c * 100.0 / (16 * 16)), "% complete.", end="\r", flush=True)
 
-    print("")
+    print()
     print("Test passed")
 
 

@@ -68,5 +68,6 @@ for pod in range(1, 5):
 if fail:
     print("Some deviation exceeds the 0.25 threshold.")
     print("Test fails. Your traffic is not evenly distributed.")
+    exit(1)
 else:
     print("Test passes. Your traffic is evenly distributed on the paths.")

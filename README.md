@@ -114,7 +114,14 @@ The rules for each type of switches should be independent, but the rules togethe
 
 We have a testing script `test_scripts/validate_task2.py`, which monitors the traffic in your network, to validate whether ECMP works. It generates iperf traffic randomly, and tests whether the load is balanced across different hops.
 
-To test your network, run:
+Start Mininet and the controller:
+
+```bash
+sudo p4run --config topology/p4app_fattree.json
+./controller/controller_fattree_l3.py
+```
+
+Run our testing script:
 
 ```bash
 sudo ./test_scripts/validate_task2.py
@@ -128,7 +135,6 @@ Now we have successufully implemented ECMP in our network, we would like to comp
 
 > [!NOTE]
 > The numbers can vary from time to time. It is better to run the experiments for at least 5 times to see the difference between different versions.
-
 
 ### Questions
 
@@ -159,7 +165,7 @@ sudo ./apps/send_traffic.py --trace apps/trace/project3_bisec1.trace --protocol 
 sudo ./apps/send_traffic.py --trace apps/trace/project3_bisec2.trace --protocol udp
 ```
 
-Each command will start one `iperf` on each host, and let 8 of them send traffic to the remaining 8 in a one-to-one mapping manner. The output of those iperf servers and clients will be stored in the log directory, and you can also see the average throughput of iperf once the `send_traffic.py` script completes.
+Each command will start one `iperf` on each host, and let 8 of them send traffic to the remaining 8 in a one-to-one mapping manner. The output of those iperf servers and clients will be stored in the `logs/` directory, and you can also see the average throughput of iperf once the `send_traffic.py` script completes.
 
 ### Questions
 
@@ -171,10 +177,10 @@ You should answer the following questions in your `report/report.md`:
 * What's the throughput difference for `bisec1` between Fattree and BinaryTree? Why one is better than the other?
 * What's the throughput difference for `bisec1` between the theory result and the Fattree? Why one is better than the other?
 
-**Hint:** You need to define the UDP header and parse the UDP header in the parser. And UDP packets have different `hdr.ipv4.protocol` value compared with TCP packets.
+**Hint:** You need to define the UDP header and parse the UDP header in the parser, and UDP packets have different `hdr.ipv4.protocol` value compared with TCP packets. Start by adding the following to `p4src/include/headers.p4` and updating the `headers` struct. Then update the parser and deparser in `p4src/include/parsers.p4` to handle UDP packets.
 
 ```
-header udp_t{
+header udp_t {
     bit<16> srcPort;
     bit<16> dstPort;
     bit<16> len;
@@ -187,6 +193,7 @@ header udp_t{
 In this experiment, you will place the iperf and Memcached applications in different hosts and see how placement affects their performance under different topologies.
 
 You will test application placements as follows:
+
 * Placement setting 1: two iperf flows (h1 <-> h3) (h2 <-> h4) + Memcached on h5,h6,h7,h8
 * Placement setting 2: two iperf flows (h1 <-> h5) (h3 <-> h7) + Memcached on h2,h4,h6,h8
 
