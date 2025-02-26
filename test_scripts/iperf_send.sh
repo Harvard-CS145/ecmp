@@ -36,5 +36,4 @@ do
 done
 
 pkill tcpdump
-
 printf "\n"

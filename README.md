@@ -75,7 +75,7 @@ sudo p4run --config topology/p4app_fattree.json
 Run our testing script:
 
 ```bash
-sudo ./test_scripts/validate_l3_fwd.py
+sudo ./test_scripts/validate_task1.py
 ```
 
 ## Task 2: Implement ECMP
@@ -84,7 +84,7 @@ To implement ECMP, we need to first write P4 code in the data plane to define th
 
 ### Step 1: Implement ECMP tables in the data plane
 
-In `p4src/l3fwd.p4`, implement the ECMP tables in the ingress part of the switch and define necessary metadata fields. This is in addition to the l3 forwarding logic you added in Task 1. At a high level, instead of specifying an output port for each flow, we now specify an output port groups for a group of flows.
+In `p4src/l3fwd.p4`, implement the ECMP tables in the ingress part of the switch and define necessary metadata fields. This is in addition to the L3 forwarding logic you added in Task 1. At a high level, instead of specifying an output port for each flow, we now specify an output port groups for a group of flows.
 
 There are two types of flows at a switch: (1) Downward flows: For those flows that go downward in the FatTree, there is only one downward path to each destination. That is, there is one output port for these flows. (2) Upward flows: For those flows that go to the upper layers of the FatTree, there are multiple equal-cost paths. So we create an ECMP group for these output ports, and use a hash function to decide which output port to send each flow based on its five tuples (i.e., source IP address, destination IP address, source port, destination port, protocol).
 
@@ -98,7 +98,7 @@ One problem is that since both ToR and Aggregate switches hash on the same five 
 
 To solve this problem, one idea is to use different hash seeds for the ToR and aggregate switches. However, we would like the P4 code in the data plane to be **topology independent**. That is, we cannot allocate hash seeds based on the switch locations, host IP addresses or the paths in the topology.
 
-To solve the problem, we introduce the `ecmp_group_id`. We set all ToR switches with one specific `ecmp_group_id`, while all aggregated switches with another id. We can then specify different rules in the `ecmp_group_to_nhop` table based on both the hash value and the `ecmp_group_id`.
+To solve the problem, we introduce the `ecmp_group_id`. We set all ToR switches with one specific `ecmp_group_id`, while all aggregated switches with another ID. We can then specify different rules in the `ecmp_group_to_nhop` table based on both the hash value and the `ecmp_group_id`.
 
 ### Step 2: Generate rules at the controller
 
@@ -112,12 +112,12 @@ The rules for each type of switches should be independent, but the rules togethe
 
 ### Test your code
 
-We have a testing script `test_scripts/validate_ecmp.py`, which monitors the traffic in your network, to validate whether ECMP works. It generates iperf traffic randomly, and tests whether the load is balanced across different hops.
+We have a testing script `test_scripts/validate_task2.py`, which monitors the traffic in your network, to validate whether ECMP works. It generates iperf traffic randomly, and tests whether the load is balanced across different hops.
 
 To test your network, run:
 
 ```bash
-sudo python3 test_scripts/validate_ecmp.py
+sudo ./test_scripts/validate_task2.py
 ```
 
 ## Performance comparison for ECMP (for k=4 FatTree)

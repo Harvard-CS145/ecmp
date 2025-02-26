@@ -23,7 +23,7 @@ def test_fat_tree():
             assert (
                 ", 0% packet loss"
                 in os.popen(f"mx {h} ping -c 1 {ip}").read()
-            )
+            ), "Expected pingall 0% packet loss"
             c += 1
             print(int(c * 100.0 / (16 * 16)), "% complete.", end="\r", flush=True)
 

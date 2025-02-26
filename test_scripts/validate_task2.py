@@ -58,9 +58,8 @@ for pod in range(1, 5):
         + (d3 - avg) * (d3 - avg)
         + (d4 - avg) * (d4 - avg)
     ) / 4.0
-    dev = math.sqrt(dev)
-    dev = dev / avg
-    print(dev)
+    dev = math.sqrt(dev) / avg
+    print(f"Deviation: {dev:.3f}")
     if abs(dev) > 0.25:
         fail = True
 

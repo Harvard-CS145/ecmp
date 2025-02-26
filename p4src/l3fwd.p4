@@ -50,7 +50,12 @@ control MyIngress(inout headers hdr,
     // action ecmp_group is actually calculating the hash value and kicking
     // off ecmp logic.
     table ipv4_lpm {
-        // TODO: define the IP forwarding table
+        // TODO: overwrite the following to define the IP forwarding table
+        key = { }
+        actions = {
+            drop;
+        }
+        default_action = drop();
     }
 
     // ECMP Only
@@ -59,8 +64,13 @@ control MyIngress(inout headers hdr,
     // ecmp_group_id to the egress port. The action set_nhop sets the egress
     // port.
     table ecmp_group_to_nhop {
-        // TODO: define the ecmp table, this table is only called when multiple
-        // egress ports are available
+        // TODO: overwrite the following to define the ecmp table; this table is
+        // only called when multiple egress ports are available
+        key = { }
+        actions = {
+            drop;
+        }
+        default_action = drop();
     }
 
     apply {
