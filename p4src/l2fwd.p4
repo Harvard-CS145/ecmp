@@ -33,6 +33,7 @@ struct headers {
 /*************************************************************************
  *                              PARSER                                   *
  *************************************************************************/
+
 parser MyParser(packet_in packet,
                 out headers hdr,
                 inout metadata meta,
@@ -47,6 +48,7 @@ parser MyParser(packet_in packet,
 /*************************************************************************
  *                     CHECKSUM VERIFICATION                             *
  *************************************************************************/
+
 control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
     apply { }
 }
@@ -54,6 +56,7 @@ control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
 /*************************************************************************
  *                     INGRESS PROCESSING                                *
  *************************************************************************/
+
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
@@ -90,6 +93,7 @@ control MyIngress(inout headers hdr,
 /*************************************************************************
  *                     EGRESS PROCESSING                                 *
  *************************************************************************/
+
 control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
@@ -99,6 +103,7 @@ control MyEgress(inout headers hdr,
 /*************************************************************************
  *                     CHECKSUM COMPUTATION                              *
  *************************************************************************/
+
 control MyComputeChecksum(inout headers hdr, inout metadata meta) {
     apply { }
 }
@@ -106,6 +111,7 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
 /*************************************************************************
  *                              DE-PARSER                                *
  *************************************************************************/
+
 control MyDeparser(packet_out packet, in headers hdr) {
     apply {
         // Deparse the ethernet header
@@ -116,6 +122,7 @@ control MyDeparser(packet_out packet, in headers hdr) {
 /*************************************************************************
  *                              SWITCH                                   *
  *************************************************************************/
+
 // Switch architecture
 V1Switch(
     MyParser(),

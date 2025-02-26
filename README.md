@@ -16,26 +16,34 @@ git clone --recurse-submodules "<your repository>"
 
 When there are updates to the starter code, TFs will open pull requests in your repository. You should merge the pull request and pull the changes back to local. You might need to resolve conflicts manually (either when merging PR in remote or pulling back to local). However, most of the times there shouldn't be too much conflict as long as you do not make changes to test scripts, infrastructures, etc. Reach out to TF if it is hard to merge.
 
-In Project 1, we distributed traffic across two separated core switches for different application (`controller_fattree_twocore.py`). But this is not efficient enough. For instance, if one application stops working, then its corresponding core switch is wasted. Or if we have many applications, we may not afford to have one core per application.
-Thus, we need a more advanced routing strategy -- ECMP. At the end of ECMP experiment, you are expected to see even higher throughput of iperf and lower latency of Memcached, compared with `controller_fattree_twocore.py`.
+In Project 1, we distributed traffic across two separated core switches for different application (`controller_fattree_twocore.py`). But this is not efficient enough. For instance, if one application stops working, then its corresponding core switch is wasted. Or if we have many applications, we may not afford to have one core per application. Thus, we need a more advanced routing strategy -- ECMP. At the end of ECMP experiment, you are expected to see even higher throughput of iperf and lower latency of Memcached, compared with `controller_fattree_twocore.py`.
 
-In this project, we only focus on the Fattree topology with k=4 (i.e., 16 hosts) and Binary Tree with 16 hosts. You should start by copying your topology file `topology/p4app_fattree.json` from Project 1 to Project 3.
-
-You will implement Layer-3 routing and ECMP by modifying `p4src/l3fwd.p4` for the data plane and `controller_fattree_l3.py` for the control plane.
-
-We provide a [detailed explanation on P4](p4_explanation.md) which include most useful concepts and primitives about P4 in this project and future projects.
+In this project, we only focus on the Fattree topology with k=4 (i.e., 16 hosts) and Binary Tree with 16 hosts. You will implement Layer-3 routing and ECMP by modifying `p4src/l3fwd.p4` for the data plane and `controller_fattree_l3.py` for the control plane. We provide a [detailed explanation on P4](p4_explanation.md) which include most useful concepts and primitives about P4 in this project and future projects.
 
 ## Task 1: Switching To Layer-3 Routing
 
 Your first task is to switch layer-2 routing based on MAC addresses (in `l2fwd.p4`) to layer-3 routing based on IP addresses. Layer 3 routing (also called Network layer routing or IP routing) uses IP addresses to compute routes and configure forwarding tables. Instead of looking at the MAC address, the match action tables on the switch use the IP addresses as their key. Note that the default IP addresses for the 16 hosts are from 10.0.0.1 to 10.0.0.16.
 
+Start by copying your solution to `topology/generate_fattree_topo.py` from Project 1 to Project 3. Change the `p4_src` in the template to point to `p4src/l3fwd.p4`:
+
+```diff
+-    "p4_src": "p4src/l2fwd.p4",
++    "p4_src": "p4src/l3fwd.p4",
+```
+
+The generate the Fattree topology with k=4 the same as in Project 1:
+
+```bash
+./topology/generate_fattree_topo.py 4
+```
+
+These would need to be done only once. The rest of this project will then rely on the generated topology file `topology/p4app_fattree.json`.
+
 ### Step 1: Handling Layer 3 Packets
 
-In `p4src/l3fwd.p4`:
-
-- Define a parser for `tcp` packets.
-- Define the deparser (by calling `emit` on all headers).
-- Define the ingress processing logic, including a table with destination IP address as the key, and corresponding actions.
+- Define a parser for `tcp` packets (`MyParser` in `p4src/include/parsers.p4`).
+- Define the deparser by calling `emit` on all headers (`MyDeparser` in `p4src/include/parsers.p4`).
+- Define the ingress processing logic, including a table with destination IP address as the key, and corresponding actions (`MyIngress` in `p4src/l3fwd.p4`).
 
 **Hint 1:** To correctly set up a parser for TCP packets, you first need to extract the headers for Ethernet and IP, because TCP is a protocol that is layered within the data of the Ethernet and IP protocols.
 
@@ -43,7 +51,7 @@ In `p4src/l3fwd.p4`:
 
 ### Step 2: Set up the forwarding table
 
-In `controller/controller_fattree_l3.py`, fill up the rules in the forwarding table. In project 1, we did L2 forwarding in the controller:
+In `controller/controller_fattree_l3.py`, fill up the rules in the forwarding table. In Project 1, we did L2 forwarding in the controller:
 
 ```python
 controller.table_add("dmac", "forward", [f"00:00:0a:00:00:{host_id + 1:02x}"], [f"{out_port}"])
@@ -114,7 +122,7 @@ sudo python3 test_scripts/validate_ecmp.py
 
 ## Performance comparison for ECMP (for k=4 FatTree)
 
-Now we have successufully implemented ECMP in our network, we would like to compare its performance with prior routing solutions: two-core splitting and the Binary tree (in project 1). We use the same trace as project 1 `./apps/trace/project1.trace` (generated based on `apps/trace/project1.json`). Please check how to run the traffic trace in project 1.
+Now we have successufully implemented ECMP in our network, we would like to compare its performance with prior routing solutions: two-core splitting and the Binary tree (in Project 1). We use the same trace as Project 1 `./apps/trace/project1.trace` (generated based on `apps/trace/project1.json`). Please check how to run the traffic trace in Project 1.
 
 - **Expr 3-1:** Running Project 1's traffic trace on FatTree topology using ECMP.
 
@@ -140,8 +148,7 @@ You should answer the following questions in your `report/report.md`:
 
 In this experiment, you will measure the bisection bandwidth of Binary tree topology and Fattree topology. Here we are using UDP traffic instead of TCP traffic, because TCP traffic takes a long time to converge, and the traffic rate before the convergence is not accurate.
 
-You need to run 8 iperf flows between 8 pairs of senders and receivers. We provide you with two different flow mappings between iperf clients and iperf servers.
-You can use the following commands to send traffic.
+You need to run 8 iperf flows between 8 pairs of senders and receivers. We provide you with two different flow mappings between iperf clients and iperf servers. You can use the following commands to send traffic.
 
 ```bash
 # h1 <-> h9, h2 <-> h10, h3 <-> h11, ..., h8 <-> h16
@@ -152,8 +159,7 @@ sudo ./apps/send_traffic.py --trace apps/trace/project3_bisec1.trace --protocol 
 sudo ./apps/send_traffic.py --trace apps/trace/project3_bisec2.trace --protocol udp
 ```
 
-Each command will start one `iperf` on each host, and let 8 of them send traffic to the remaining 8 in a one-to-one mapping manner.
-The output of those iperf servers and clients will be stored in the log directory, and you can also see the average throughput of iperf once the `send_traffic.py` script completes.
+Each command will start one `iperf` on each host, and let 8 of them send traffic to the remaining 8 in a one-to-one mapping manner. The output of those iperf servers and clients will be stored in the log directory, and you can also see the average throughput of iperf once the `send_traffic.py` script completes.
 
 ### Questions
 
