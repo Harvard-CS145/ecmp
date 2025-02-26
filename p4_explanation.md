@@ -344,7 +344,7 @@ P4 includes the built-in function `hash(...)` that implements several hash funct
 2. The hashing algorithm to use. You typically want to use either `HashAlgorithm.crc16` or `HashAlgorithm.crc32`.
 3. The base for the hash algorithm (or the hash seed). You can just use `(bit<1>)0` or any number that satisfies the restrictions of the hash algorithm.
 4. The fields to hash over following the form `{field1, field2, ...}`.
-5. The maximum value of the hash output. For example, if you specify it as 2,your hash values are either 0 or 1. The maximum value is restricted to be a power of 2.
+5. The maximum value of the hash output. For example, if you specify it as 2, your hash values are either 0 or 1. The maximum value is restricted to be a power of 2.
 
 ### Clone/Recirulate packets
 

@@ -66,7 +66,7 @@ The `ingress processing` part is used to process the parsed header. In this proj
 
 We define a `control` in this part, and the parameters are the parsed header "hdr", and the metadata. Within the `control`, we define `action` and `table`. An `action` is a function processing the packet, and a `table` is the flow table in the P4 switch.
 
-In this part, we define an `action` called "forward", which is used to set the output port of the packet.  The "forward" action takes as input the egress port. Then, it sets the egress_spec in the standard_metadata to the port inputted as a parameter. Changing the standard_metadata tells the switch to which port the packet should be forwarded.
+In this part, we define an `action` called "forward", which is used to set the output port of the packet. The "forward" action takes as input the egress port. Then, it sets the egress_spec in the standard_metadata to the port inputted as a parameter. Changing the standard_metadata tells the switch to which port the packet should be forwarded.
 
 We also define a `table` named "dmac", which is the forwarding table for packets. This table is a look-up table for P4 switch. Each part of the `key` section is a parameter of the packet that will be used to match a packet to an action. The `exact` part specifies the type of matching to do on that parameter.
 

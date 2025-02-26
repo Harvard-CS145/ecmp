@@ -38,4 +38,4 @@ do
 done
 
 pkill tcpdump
-echo -e "\n"
+echo
