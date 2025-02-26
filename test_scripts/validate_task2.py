@@ -6,6 +6,7 @@ import json
 
 print("Test ECMP")
 print("Running iperf")
+print("(might take a while)")
 
 with open("topology.json") as f:
     topo_json = json.load(f)
@@ -21,7 +22,7 @@ for l in links:
 
 # Running a scripts to send iperf traffic for each host pair
 # (hx->hy for any x and y from 1 to 16)
-os.system(f"sudo bash test_scripts/iperf_send.sh {topo}")
+os.system(f"sudo ./test_scripts/iperf_send.sh {topo}")
 
 fail = False
 # Check each pod in the fattree
