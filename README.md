@@ -18,7 +18,7 @@ When there are updates to the starter code, TFs will open pull requests in your 
 
 In Project 1, we distributed traffic across two separated core switches for different application (`controller_fattree_twocore.py`). But this is not efficient enough. For instance, if one application stops working, then its corresponding core switch is wasted. Or if we have many applications, we may not afford to have one core per application. Thus, we need a more advanced routing strategy -- ECMP. At the end of ECMP experiment, you are expected to see even higher throughput of iperf and lower latency of Memcached, compared with `controller_fattree_twocore.py`.
 
-In this project, we only focus on the Fattree topology with k=4 (i.e., 16 hosts) and Binary Tree with 16 hosts. You will implement Layer-3 routing and ECMP by modifying `p4src/l3fwd.p4` for the data plane and `controller_fattree_l3.py` for the control plane. We provide a [detailed explanation on P4](p4_explanation.md) which include most useful concepts and primitives about P4 in this project and future projects.
+In this project, we only focus on the FatTree topology with k=4 (i.e., 16 hosts) and BinaryTree with 16 hosts. You will implement Layer-3 routing and ECMP by modifying `p4src/l3fwd.p4` for the data plane and `controller_fattree_l3.py` for the control plane. We provide a [detailed explanation on P4](p4_explanation.md) which include most useful concepts and primitives about P4 in this project and future projects.
 
 ## Task 1: Switching To Layer-3 Routing
 
@@ -31,7 +31,7 @@ Start by copying your solution to `topology/generate_fattree_topo.py` from Proje
 +    "p4_src": "p4src/l3fwd.p4",
 ```
 
-The generate the Fattree topology with k=4 the same as in Project 1:
+The generate the FatTree topology with k=4 the same as in Project 1:
 
 ```bash
 ./topology/generate_fattree_topo.py 4
@@ -129,9 +129,14 @@ sudo ./test_scripts/validate_task2.py
 
 ## Performance comparison for ECMP (for k=4 FatTree)
 
-Now we have successufully implemented ECMP in our network, we would like to compare its performance with prior routing solutions: two-core splitting and the Binary tree (in Project 1). We use the same trace as Project 1 `./apps/trace/project1.trace` (generated based on `apps/trace/project1.json`). Please check how to run the traffic trace in Project 1.
+Now we have successufully implemented ECMP in our network, we would like to compare its performance with prior routing solutions: two-core splitting and the BinaryTree (in Project 1).
 
-- **Expr 3-1:** Running Project 1's traffic trace on FatTree topology using ECMP.
+**Expr 3-1:** Run the same traffic trace as Project 1 (`./apps/trace/project1.trace` generated based on `apps/trace/project1.json`) on FatTree topology using ECMP. First start Mininet and then run script `expr3-1.sh` (which calls the controller and runs the traffic trace 5 times for you) and record the average `iperf` throughput and `memcached` latency of each trace execution. This is exactly the same as what we did in Project 1.
+
+```bash
+sudo p4run --config topology/p4app_fattree.json
+./test_scripts/expr3-1.sh
+```
 
 > [!NOTE]
 > The numbers can vary from time to time. It is better to run the experiments for at least 5 times to see the difference between different versions.
@@ -141,7 +146,7 @@ Now we have successufully implemented ECMP in our network, we would like to comp
 You should answer the following questions in your `report/report.md`:
 
 * What is the average throughput of iperf and average latency of memcached you observe for ECMP?
-* How do you compare them with the Binary tree (Expr 1-3) and two-core splitting (Expr 1-2)?
+* How do you compare them with the BinaryTree (Expr 1-3) and two-core splitting (Expr 1-2)?
 * Explain why you see the differences. Use measurement results to demonstrate your points.
 
 **Hint 1:** To understand the performance difference, the first step is to verify that you are using all four cores. The next step is to track the paths the memcached and iperf traffic take. If they collide on the same path, it will cause congestion and affect performance.
@@ -152,16 +157,37 @@ You should answer the following questions in your `report/report.md`:
 
 ## Bisection Bandwidth
 
-In this experiment, you will measure the bisection bandwidth of Binary tree topology and Fattree topology. Here we are using UDP traffic instead of TCP traffic, because TCP traffic takes a long time to converge, and the traffic rate before the convergence is not accurate.
+In this experiment, you will measure the bisection bandwidth of BinaryTree topology and FatTree topology. Here we are using UDP traffic instead of TCP traffic, because TCP traffic takes a long time to converge, and the traffic rate before the convergence is not accurate.
 
-You need to run 8 iperf flows between 8 pairs of senders and receivers. We provide you with two different flow mappings between iperf clients and iperf servers. You can use the following commands to send traffic.
+> [!NOTE]
+> You need to define the UDP header and parse the UDP header in the parser, and UDP packets have different `hdr.ipv4.protocol` value compared with TCP packets. Start by adding the following to `p4src/include/headers.p4` and updating the `headers` struct. Then update the parser and deparser in `p4src/include/parsers.p4` to handle UDP packets.
+>
+> ```
+> header udp_t {
+>     bit<16> srcPort;
+>     bit<16> dstPort;
+>     bit<16> len;
+>     bit<16> checksum;
+> }
+> ```
+
+You need to run 8 iperf flows between 8 pairs of senders and receivers. We provide you with two different flow mappings between iperf clients and iperf servers.
+
+- BinaryTree: Go to your Project 1 repository, follow its instructions to generate BinaryTree topology with `I=4`, start mininet with that topology, and run the BinaryTree controller with `I=4`.
+- FatTree (ECMP): Directly in this repository, you should have already generated FatTree topology with `k=4`, then start mininet and run the ECMP controller.
+
+In each case, you can then use the following commands to generate traffic trace and send traffic.
 
 ```bash
-# h1 <-> h9, h2 <-> h10, h3 <-> h11, ..., h8 <-> h16
+# h1 <-> h9  h2 <-> h10  h3 <-> h11  ...  h8 <-> h16
+./apps/trace/generate_trace.py ./apps/trace/project3_bisec1.json
 sudo ./apps/send_traffic.py --trace apps/trace/project3_bisec1.trace --protocol udp
+```
 
-# h1 <-> h5, h2 <-> h6, h3 <-> h7, h4 <-> h8,
-# h9 <-> h13, h10 <-> h14, h11 <-> h15, h12 <-> h16
+```bash
+# h1 <-> h5   h2  <-> h6   h3  <-> h7   h4  <-> h8
+# h9 <-> h13  h10 <-> h14  h11 <-> h15  h12 <-> h16
+./apps/trace/generate_trace.py ./apps/trace/project3_bisec2.json
 sudo ./apps/send_traffic.py --trace apps/trace/project3_bisec2.trace --protocol udp
 ```
 
@@ -171,22 +197,11 @@ Each command will start one `iperf` on each host, and let 8 of them send traffic
 
 You should answer the following questions in your `report/report.md`:
 
-* What is the bisection bandwidth in theory for Fattree?
-* What average throughput do you get from `bisec1` and `bisec2` traces under Fattree?
+* What is the bisection bandwidth in theory for FatTree?
+* What average throughput do you get from `bisec1` and `bisec2` traces under FatTree?
 * What average throughput do you get from `bisec1` and `bisec2` traces under BinaryTree?
-* What's the throughput difference for `bisec1` between Fattree and BinaryTree? Why one is better than the other?
-* What's the throughput difference for `bisec1` between the theory result and the Fattree? Why one is better than the other?
-
-**Hint:** You need to define the UDP header and parse the UDP header in the parser, and UDP packets have different `hdr.ipv4.protocol` value compared with TCP packets. Start by adding the following to `p4src/include/headers.p4` and updating the `headers` struct. Then update the parser and deparser in `p4src/include/parsers.p4` to handle UDP packets.
-
-```
-header udp_t {
-    bit<16> srcPort;
-    bit<16> dstPort;
-    bit<16> len;
-    bit<16> checksum;
-}
-```
+* What's the throughput difference for `bisec1` between FatTree and BinaryTree? Why one is better than the other?
+* What's the throughput difference for `bisec1` between the theory result and the FatTree? Why one is better than the other?
 
 ## Application placement in FatTree
 
@@ -202,19 +217,19 @@ The above application placements are just a suggestion. The application placemen
 > [!NOTE]
 > Different placement forwards iperf flows and Memcached flows in different paths. If different flow paths overlap a lot, then the performance should be poorer. Instead, if those paths do not overlap a lot, then the performance should be better. Therefore, you can find two different placements based on the flow paths with different performance.
 
-You will run your chosen placement(s) on the Fattree topology.
+You will run your chosen placement(s) on the FatTree topology.
 
 ### Questions
 
 You should answer the following question in your `report/report.md`:
 
-* Does the average throughput of iperf change under Fattree with different placement schemes? Why?
+* Does the average throughput of iperf change under FatTree with different placement schemes? Why?
 
 ## Extra Credits
 
 ### Optional Task 1 (20 credits)
 
-Can you try to design a different topology other than Binary Tree and FatTree by following two constraints: (1) the total bandwidth of links for one switch do not exceed the switch capacity, (2) the number of links for one switch cannot exceed four? But you can use any number of switches. You should also define your own routing schemes on your topology. How do you compare its performance with Binary Tree and FatTree? Please describe your design in your `report/report.md`.
+Can you try to design a different topology other than BinaryTree and FatTree by following two constraints: (1) the total bandwidth of links for one switch do not exceed the switch capacity, (2) the number of links for one switch cannot exceed four? But you can use any number of switches. You should also define your own routing schemes on your topology. How do you compare its performance with BinaryTree and FatTree? Please describe your design in your `report/report.md`.
 
 ### Optional Task 2 (25 credits)
 
@@ -241,7 +256,7 @@ git push --tags
 
 You are expected to submit the following documents:
 
-1. Code: The P4 programs that you write to implement L3 routing and ECMP in the dataplane (`p4src/l3fwd.p4`, `p4src/include/parsers.p4` and `p4src/include/headers.p4`). The controller programs that fill in the forwarding rules for Fattree topologies with L3 routing and ECMP (`controller/controller_fattree_l3.py`). Please also add brief comments that help us understand your code.
+1. Code: The P4 programs that you write to implement L3 routing and ECMP in the dataplane (`p4src/l3fwd.p4`, `p4src/include/parsers.p4` and `p4src/include/headers.p4`). The controller programs that fill in the forwarding rules for FatTree topologies with L3 routing and ECMP (`controller/controller_fattree_l3.py`). Please also add brief comments that help us understand your code.
 2. `report/report.md`: In this report, you should describe how you implement L3 routing, ECMP, and fill in rules with the controller. You also need to answer the questions above. You might put some figures in the `report/` folder, and embed them in your `report/report.md`.
 
 ### Grading
@@ -257,3 +272,6 @@ The total grades is 100:
 ## Survey
 
 Please fill up the survey when you finish your project: [Survey link](https://forms.gle/XGUn5bv2MaVeqhi89).
+
+> [!WARNING]
+> Remember to regularly clean up your `log/` and `pcap/` folder. They will keep growing in size and may end up taking up all disk space available in the VM and lead to a crash.
